@@ -20,14 +20,14 @@ const MATRIZ = [
   ['Definir el Definition of Done',      'TODOS'],
   ['Reportar un impedimento',            'TODOS']
 ];
-
+/* colores */
 const COLOR = {
   PO: 'bg-violet-100 text-violet-700',
   SM: 'bg-sky-100 text-sky-700',
   DEV: 'bg-emerald-100 text-emerald-700',
   TODOS: 'bg-slate-200 text-slate-700'
 };
-
+/* Funcion */
 export default function Equipo() {
   const { producto, usuario, rol, recargar: recargarAuth } = useAuth();
   const [datos, setDatos] = useState(null);

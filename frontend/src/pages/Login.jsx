@@ -9,6 +9,7 @@ const DEMO = [
   { email: 'lucia@sprintcuc.cr', nombre: 'Lucia Vargas',    rol: 'Developer',     color: 'bg-emerald-100 text-emerald-700 border-emerald-200' }
 ];
 
+/* Ingreso */
 export default function Login() {
   const { entrar } = useAuth();
   const [email, setEmail] = useState('');

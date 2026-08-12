@@ -15,6 +15,7 @@ import { api } from '../api/client.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import { Cargando, Aviso, Hoja, Toast, EstadoHistoria, Puntos, Vacio } from '../components/UI.jsx';
 
+/* Declaraciones */
 const FIBONACCI = [1, 2, 3, 5, 8, 13, 21];
 
 /* ---------------- Fila arrastrable ---------------- */
