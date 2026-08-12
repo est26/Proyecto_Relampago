@@ -9,6 +9,14 @@ r.use(requireAuth);
 r.get('/', requireMember('sprint'), async (req, res, next) => {
   try {
     const sprintId = Number(req.query.sprint);
+
+    // HU-075: sin un sprint valido no hay forma de saber que dailies
+    // consultar; se responde 400 en vez de dejar pasar un NaN silencioso
+    // que hubiera devuelto una lista vacia confundiendo al Scrum Master.
+    if (!sprintId) {
+      return res.status(400).json({ error: 'sprint es obligatorio y debe ser numerico' });
+    }
+
     const { fecha } = req.query;
 
     const params = [sprintId];
@@ -23,7 +31,9 @@ r.get('/', requireMember('sprint'), async (req, res, next) => {
       params
     );
 
-    // HU-076: quien no ha registrado su actualizacion de hoy
+    // HU-076: quien no ha registrado su actualizacion de hoy.
+    // Solo se revisan Developers porque son quienes reportan avance
+    // de tareas; PO y SM no tienen Daily obligatorio en este modelo.
     const { rows: faltan } = await q(
       `SELECT u.id, u.nombre
          FROM team_members tm
@@ -51,8 +61,15 @@ r.get('/', requireMember('sprint'), async (req, res, next) => {
    ------------------------------------------------------------ */
 r.post('/', requireMember('sprint'), async (req, res, next) => {
   try {
-    const { sprint_id, avance, siguiente, impedimento_txt, prioridad } = req.body;
+    const { sprint_id, prioridad } = req.body;
     if (!sprint_id) return res.status(400).json({ error: 'sprint_id es obligatorio' });
+
+    // HU-074: se recortan los tres campos de texto para que un Daily
+    // de solo espacios en blanco no cuente como "registrado" ante
+    // el chequeo de sin_registrar_hoy.
+    const avance = req.body.avance?.trim() || null;
+    const siguiente = req.body.siguiente?.trim() || null;
+    const impedimento_txt = req.body.impedimento_txt?.trim() || null;
 
     const resultado = await tx(async (c) => {
       const { rows: d } = await c.query(
@@ -63,11 +80,14 @@ r.post('/', requireMember('sprint'), async (req, res, next) => {
                siguiente = EXCLUDED.siguiente,
                impedimento_txt = EXCLUDED.impedimento_txt
          RETURNING *`,
-        [sprint_id, req.user.id, avance ?? null, siguiente ?? null, impedimento_txt ?? null]
+        [sprint_id, req.user.id, avance, siguiente, impedimento_txt]
       );
 
+      // HU-077: se verifica si el Daily de hoy ya genero un impedimento
+      // antes de crear otro, para que editar el mismo Daily dos veces
+      // en el dia no duplique el impedimento asociado.
       let impedimento = null;
-      if (impedimento_txt?.trim()) {
+      if (impedimento_txt) {
         const { rows: existe } = await c.query(
           `SELECT id FROM impediments WHERE daily_id = $1`, [d[0].id]
         );
