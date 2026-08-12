@@ -10,7 +10,7 @@
     "start": "node server.js",
     "dev": "node --env-file=.env --watch server.js",
     "dev:front": "npm run dev --prefix frontend",
-    "build": "npm install --prefix frontend && npm run build --prefix frontend && node scripts/copy-build.mjs",
+    "build": "npm install --prefix frontend --include=dev && npm run build --prefix frontend && node scripts/copy-build.mjs",
     "db:setup": "node --env-file=.env scripts/db-setup.mjs",
     "db:seed": "node --env-file=.env scripts/db-setup.mjs seed",
     "test": "node tests/api.mjs"
