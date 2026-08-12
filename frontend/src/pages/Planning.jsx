@@ -48,6 +48,13 @@ export default function Planning() {
 
   /* HU-058/061: solo los Developers conforman el Sprint Backlog */
   const comprometer = async () => {
+    // HU-058: se valida en el cliente que haya al menos una historia
+    // seleccionada antes de llamar a la API, evitando un POST vacio
+    // que el backend rechazaria de todas formas con 400.
+    if (seleccion.length === 0) {
+      setError({ message: 'Seleccione al menos una historia para comprometer' });
+      return;
+    }
     setError(null);
     try {
       await api.comprometer(id, seleccion);
@@ -64,8 +71,15 @@ export default function Planning() {
 
   const guardarGoal = async (e) => {
     e.preventDefault();
+    // HU-052: se recorta el goal antes de enviarlo, en espejo de la
+    // validacion del backend (routes/sprints.js PUT /:id/goal).
+    const goal = new FormData(e.target).get('goal')?.trim();
+    if (!goal) {
+      setError({ message: 'El Sprint Goal no puede quedar vacio' });
+      return;
+    }
     try {
-      await api.sprintGoal(id, new FormData(e.target).get('goal'));
+      await api.sprintGoal(id, goal);
       setEditandoGoal(false);
       setAviso('Sprint Goal actualizado');
       cargar();

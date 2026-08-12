@@ -13,6 +13,13 @@ r.use(requireAuth);
 r.get('/', requireMember('sprint'), async (req, res, next) => {
   try {
     const sprintId = Number(req.query.sprint);
+
+    // HU-081: sin un sprint valido no se puede saber que impedimentos
+    // mostrar; se responde 400 en vez de dejar pasar un NaN silencioso.
+    if (!sprintId) {
+      return res.status(400).json({ error: 'sprint es obligatorio y debe ser numerico' });
+    }
+
     const { rows } = await q(
       `SELECT i.*,
               rep.nombre AS reportado_por_nombre,
@@ -32,6 +39,9 @@ r.get('/', requireMember('sprint'), async (req, res, next) => {
       [sprintId]
     );
 
+    // HU-082: "mas_antiguo" se calcula sobre los impedimentos ya
+    // ordenados por prioridad/antiguedad, así que el primero no
+    // resuelto es efectivamente el mas urgente, no solo el mas viejo.
     res.json({
       impedimentos: rows,
       abiertos: rows.filter((i) => i.estado !== 'resuelto').length,
@@ -45,7 +55,12 @@ r.get('/', requireMember('sprint'), async (req, res, next) => {
 /* HU-078: cualquier miembro puede reportar un impedimento */
 r.post('/', requireMember('sprint'), async (req, res, next) => {
   try {
-    const { sprint_id, descripcion, prioridad } = req.body;
+    const { sprint_id, prioridad } = req.body;
+
+    // HU-078: se recorta la descripcion para que un impedimento de
+    // solo espacios en blanco no pase la validacion de "obligatorio".
+    const descripcion = req.body.descripcion?.trim();
+
     if (!sprint_id || !descripcion) {
       return res.status(400).json({ error: 'sprint_id y descripcion son obligatorios' });
     }
@@ -65,9 +80,22 @@ r.post('/', requireMember('sprint'), async (req, res, next) => {
    Es del Scrum Master: remover impedimentos SI es su responsabilidad.
    Aqui su autoridad es legitima; sobre el Sprint Backlog no lo es.
    ------------------------------------------------------------ */
+const ESTADOS_VALIDOS = ['abierto', 'gestionando', 'escalado', 'resuelto'];
+
 r.put('/:id', requireRole(['SM'], 'impediment'), async (req, res, next) => {
   try {
     const { prioridad, estado, responsable_id } = req.body;
+
+    // HU-079/083: se valida el estado contra la lista permitida para
+    // que un typo del frontend no deje el impedimento en un estado
+    // que ninguna pantalla sabe interpretar.
+    if (estado && !ESTADOS_VALIDOS.includes(estado)) {
+      return res.status(400).json({
+        error: 'estado invalido',
+        detalle: `Debe ser uno de: ${ESTADOS_VALIDOS.join(', ')}`
+      });
+    }
+
     const cerrar = estado === 'resuelto';
 
     const { rows } = await q(

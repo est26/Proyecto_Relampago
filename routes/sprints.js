@@ -30,7 +30,10 @@ r.get('/', requireMember('product'), async (req, res, next) => {
 /* HU-049/050/052: crear Sprint. Lo abre el Scrum Master como facilitador. */
 r.post('/', requireRole(['SM'], 'product'), async (req, res, next) => {
   try {
-    const { sprint_goal, fecha_inicio, fecha_fin } = req.body;
+    // HU-049/050: se recorta el sprint_goal para que un texto de solo
+    // espacios en blanco no pase la validacion de "obligatorio".
+    const { fecha_inicio, fecha_fin } = req.body;
+    const sprint_goal = req.body.sprint_goal?.trim();
     if (!sprint_goal || !fecha_inicio || !fecha_fin) {
       return res.status(400).json({ error: 'sprint_goal, fecha_inicio y fecha_fin son obligatorios' });
     }
@@ -122,7 +125,10 @@ r.get('/:id', requireMember('sprint'), async (req, res, next) => {
   }
 });
 
-/* HU-057: capacidad disponible del equipo */
+/* HU-057: capacidad disponible del equipo.
+   Suma las horas de TODOS los Developers del producto (no solo los
+   asignados a este Sprint), y las compara contra lo ya comprometido
+   en tareas de este Sprint especifico, via el join con sprint_items. */
 r.get('/:id/capacity', requireMember('sprint'), async (req, res, next) => {
   try {
     const { rows: s } = await q('SELECT product_id FROM sprints WHERE id = $1', [Number(req.params.id)]);
@@ -178,8 +184,13 @@ r.put('/:id/goal', requireRole(['PO', 'SM', 'DEV'], 'sprint'), async (req, res, 
 r.post('/:id/items', requireRole(['DEV'], 'sprint'), async (req, res, next) => {
   try {
     const sprintId = Number(req.params.id);
-    const { items } = req.body;
-    if (!Array.isArray(items) || !items.length) {
+
+    // HU-058/061: se eliminan ids repetidos por si el frontend los manda
+    // duplicados (doble clic, doble tap en movil, etc).
+    const items = Array.isArray(req.body.items)
+      ? [...new Set(req.body.items)]
+      : null;
+    if (!items || !items.length) {
       return res.status(400).json({ error: 'items debe ser un arreglo de ids de historias' });
     }
 
@@ -317,6 +328,9 @@ r.put('/:id/close', requireRole(['SM'], 'sprint'), async (req, res, next) => {
       const { rows: s } = await c.query(
         `UPDATE sprints SET estado = 'cerrado' WHERE id = $1 RETURNING *`, [id]
       );
+      // Se devuelven los titulos (no solo ids) para que el frontend pueda
+      // mostrarle al Scrum Master, sin otra consulta, que historias
+      // regresaron al Product Backlog al cerrar el Sprint.
       return { sprint: s[0], devueltas: pendientes.map((p) => p.titulo) };
     });
 
