@@ -1,0 +1,25 @@
+{
+  "name": "sprintcuc",
+  "version": "1.0.0",
+  "description": "SprintCUC - Gestion de proyectos de software bajo Scrum. Reto 24h.",
+  "type": "module",
+  "engines": {
+    "node": "20.x"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --env-file=.env --watch server.js",
+    "dev:front": "npm run dev --prefix frontend",
+    "build": "npm install --prefix frontend && npm run build --prefix frontend && node scripts/copy-build.mjs",
+    "db:setup": "node --env-file=.env scripts/db-setup.mjs",
+    "db:seed": "node --env-file=.env scripts/db-setup.mjs seed",
+    "test": "node tests/api.mjs"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cookie-parser": "^1.4.6",
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.2",
+    "pg": "^8.12.0"
+  }
+}
