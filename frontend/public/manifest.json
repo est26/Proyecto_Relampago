@@ -1,0 +1,20 @@
+{
+  "name": "SprintCUC - Gestion Scrum",
+  "short_name": "SprintCUC",
+  "description": "Ejecute y evidencie un Sprint completo desde el telefono",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f8fafc",
+  "theme_color": "#264790",
+  "lang": "es",
+  "icons": [
+    {
+      "src": "/icono.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
