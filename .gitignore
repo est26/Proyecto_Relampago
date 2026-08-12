@@ -1,7 +1,11 @@
 node_modules/
 frontend/node_modules/
 frontend/dist/
-public/
+
+# Solo la carpeta public/ de la raiz, que genera el build.
+# La barra inicial es obligatoria: sin ella la regla tambien ignoraria
+# frontend/public/, que SI debe subirse (manifiesto e icono de la PWA).
+/public/
 .env
 .env.local
 *.log

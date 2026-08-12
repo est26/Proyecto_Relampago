@@ -30,7 +30,9 @@ Pendiente (de ustedes) ████░░░░░░░░░░░░░░░
 | **Config. de Render** | ✅ | `render.yaml` con base enlazada y health check |
 | **Arranque local** | ✅ | `npm run db:setup` carga la base sin necesidad de instalar `psql` |
 
-**Cifras:** 47 archivos · ~5.600 líneas · 53 de las 150 historias implementadas.
+**Cifras:** 48 archivos · ~5.600 líneas · **74 de las 150 historias implementadas** (60 completas con interfaz + 14 solo en la API). Detalle en `BACKLOG-IMPLEMENTADO.md`.
+
+> ⚠️ **Cuatro huecos que sí afectan la nota:** crear producto (HU-013/015), asignar responsabilidades (HU-008/009) y editar/eliminar historias (HU-020/021) funcionan en la API pero **no tienen pantalla**. Los dos primeros están en el alcance mínimo obligatorio y el tercero lo exige el descriptor *Excelente* del criterio 2. Son tres pantallas pequeñas.
 
 > **Planning Poker (HU-044 a 047): descartado por decisión del equipo.** Queda documentado como fuera de alcance. No aparece en ningún criterio de la rúbrica.
 
