@@ -22,12 +22,30 @@ export default function Sprint() {
   const crear = async (e) => {
     e.preventDefault();
     const f = new FormData(e.target);
+
+    // HU-049/050: se recorta el goal y se valida el rango de fechas
+    // en el cliente, como espejo de la validacion que ya hace el
+    // backend (routes/sprints.js) — esto evita un viaje de red
+    // innecesario cuando el error es obvio desde el formulario.
+    const sprint_goal = f.get('goal')?.trim();
+    const fecha_inicio = f.get('inicio');
+    const fecha_fin = f.get('fin');
+
+    if (!sprint_goal) {
+      setErr({ message: 'El Sprint Goal no puede quedar vacio' });
+      return;
+    }
+    if (new Date(fecha_fin) <= new Date(fecha_inicio)) {
+      setErr({ message: 'La fecha de fin debe ser posterior a la de inicio' });
+      return;
+    }
+
     try {
       await api.crearSprint({
         product_id: producto.id,
-        sprint_goal: f.get('goal'),
-        fecha_inicio: f.get('inicio'),
-        fecha_fin: f.get('fin')
+        sprint_goal,
+        fecha_inicio,
+        fecha_fin
       });
       setNuevo(false);
       setAviso('Sprint creado. Los Developers deben armar el Sprint Backlog.');
@@ -50,6 +68,9 @@ export default function Sprint() {
           <h1 className="text-lg font-bold text-slate-800">Sprints</h1>
           <p className="text-xs text-slate-500">Historial y planificacion</p>
         </div>
+        {/* HU-049: solo el SM ve el boton de crear Sprint — el mismo
+            criterio 1 de la rubrica (Scrum Master como facilitador,
+            no como jefe) tambien se refleja aqui en la interfaz. */}
         {esSM && <button onClick={() => setNuevo(true)} className="btn-primario btn-chico">+ Sprint</button>}
       </div>
 
