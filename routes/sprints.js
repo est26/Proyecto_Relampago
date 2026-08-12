@@ -183,6 +183,8 @@ r.put('/:id/goal', requireRole(['PO', 'SM', 'DEV'], 'sprint'), async (req, res, 
    ============================================================ */
 r.post('/:id/items', requireRole(['DEV'], 'sprint'), async (req, res, next) => {
   try {
+    const sprintId = Number(req.params.id);
+
     // HU-058/061: se eliminan ids repetidos por si el frontend los manda
     // duplicados (doble clic, doble tap en movil, etc).
     const items = Array.isArray(req.body.items)
