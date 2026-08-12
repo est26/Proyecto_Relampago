@@ -294,6 +294,8 @@ Decisiones conscientes, tomadas por el límite de 24 horas y documentadas para l
 
 ## 11. Fuera de alcance
 
-De las 150 historias del backlog maestro se implementaron **53**. Las 97 restantes se descartaron con un criterio único: *¿sin esta historia se puede ejecutar y evidenciar un Sprint completo?* Si la respuesta era sí, quedó fuera del Sprint 1.
+De las 150 historias del backlog maestro se implementaron **74**: 60 completas (API + interfaz) y 14 solo en la API. Las 76 restantes se descartaron con un criterio único: *¿sin esta historia se puede ejecutar y evidenciar un Sprint completo?* Si la respuesta era sí, quedó fuera del Sprint 1.
+
+**El detalle historia por historia está en [`BACKLOG-IMPLEMENTADO.md`](BACKLOG-IMPLEMENTADO.md)**, con el estado de cada una y dónde se demuestra.
 
 Épicas completas fuera de alcance: 6 (refinamiento), 15 (calidad y pruebas), 21 (colaboración), 22 (notificaciones), 23 (calendario), 24 (releases) y 25 (administración y seguridad avanzada).
