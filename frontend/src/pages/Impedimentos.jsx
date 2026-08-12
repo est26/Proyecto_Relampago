@@ -41,10 +41,20 @@ export default function Impedimentos() {
   const crear = async (e) => {
     e.preventDefault();
     const f = new FormData(e.target);
+
+    // HU-078: se recorta la descripcion antes de enviarla, en espejo
+    // de la validacion del backend (routes/impediments.js), para no
+    // dejar pasar un impedimento de solo espacios en blanco.
+    const descripcion = f.get('descripcion')?.trim();
+    if (!descripcion) {
+      setError({ message: 'Describa que esta bloqueando al equipo' });
+      return;
+    }
+
     try {
       await api.crearImpedimento({
         sprint_id: sprint.id,
-        descripcion: f.get('descripcion'),
+        descripcion,
         prioridad: f.get('prioridad')
       });
       setNuevo(false); setAviso('Impedimento reportado'); cargar(sprint.id);
