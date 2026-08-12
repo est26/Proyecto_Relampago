@@ -36,13 +36,27 @@ export default function Daily() {
   const enviar = async (e) => {
     e.preventDefault();
     const f = new FormData(e.target);
+
+    // HU-074: se recorta el avance antes de validar que el Daily no
+    // quede completamente vacio — espejo de la validacion del backend
+    // (routes/dailies.js), y evita un registro "fantasma" que cuente
+    // como hecho en sin_registrar_hoy sin decir nada util.
+    const avance = f.get('avance')?.trim();
+    const siguiente = f.get('siguiente')?.trim();
+    const impedimento_txt = f.get('impedimento')?.trim() || null;
+
+    if (!avance && !siguiente && !impedimento_txt) {
+      setError({ message: 'Complete al menos un campo del Daily' });
+      return;
+    }
+
     setEnviando(true);
     try {
       const r = await api.guardarDaily({
         sprint_id: sprint.id,
-        avance: f.get('avance'),
-        siguiente: f.get('siguiente'),
-        impedimento_txt: f.get('impedimento') || null,
+        avance,
+        siguiente,
+        impedimento_txt,
         prioridad: f.get('prioridad') || 'media'
       });
       setAviso(r.impedimento_creado
